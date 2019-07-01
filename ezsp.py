@@ -1,5 +1,6 @@
 import time
 import serial
+import binascii
 
 class NumberIterator:
     def __init__(self, limit, startValue = 0):
@@ -22,7 +23,7 @@ class NumberIterator:
        
 class ZigbeeNcp:
     
-    def __init__(self, portname, baudrate=57600, timeout=10):
+    def __init__(self, portname, baudrate=57600, xonxoff=True, rtscts=False, timeout=10):
         self.portname = portname
         self.timeout = timeout
         self.port = None
@@ -33,8 +34,8 @@ class ZigbeeNcp:
                                         parity=serial.PARITY_NONE,
                                         stopbits=serial.STOPBITS_ONE,
                                         timeout=timeout,
-                                        xonxoff=True,
-                                        rtscts=False,
+                                        xonxoff=xonxoff,
+                                        rtscts=rtscts,
                                         dsrdtr=False)
 
         except Exception as e:
@@ -70,7 +71,7 @@ class ZigbeeNcp:
             self.port.close()
         
     def debugOut(self, type, arr):
-        data = str(arr).encode('hex')
+        data = str(arr).encode('utf-8').hex()
         print('[' + type + '] ' + data) 
 
     def __dataRandomization(self, data):
@@ -162,16 +163,16 @@ class ZigbeeNcp:
         return result
 
     def __getResponse(self, applyRandomize = False):
-        timeout = time.time() + self.timeout
+        timeout = int(time.time()) + self.timeout
         msg = bytearray()
 
         receivedbyte = None
 
-        while (time.time() < timeout) and (receivedbyte != bytearray([self.FLAG_BYTE])):
-            receivedbyte = bytearray([self.port.read()])
+        while ((int(time.time()) < timeout) and (receivedbyte != self.FLAG_BYTE)):
+            receivedbyte = self.port.read()
             msg += receivedbyte
 
-        if msg == '':
+        if msg == bytearray():
             raise Exception('No response')
 
         msg = self.__byteStuffing(msg)
