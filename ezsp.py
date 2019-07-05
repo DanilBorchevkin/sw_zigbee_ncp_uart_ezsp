@@ -71,7 +71,7 @@ class ZigbeeNcp:
             self.port.close()
         
     def debugOut(self, type, arr):
-        data = str(arr).encode('utf-8').hex()
+        data = ''.join(format(x, '02x') for x in arr)
         print('[' + type + '] ' + data) 
 
     def __dataRandomization(self, data):
@@ -212,7 +212,7 @@ class ZigbeeNcp:
         self.debugOut('send ACK', ack)
         self.port.write(ack)
 
-    def sendCommand(self, commandId, commandName = '', applyRandomize = False):
+    def sendCommand(self, commandId,  commandName = '', applyRandomize = False):
         frame = self.__ashFrameBuilder(commandId)
         self.debugOut('send ' + commandName, frame)
         self.port.flushInput()
