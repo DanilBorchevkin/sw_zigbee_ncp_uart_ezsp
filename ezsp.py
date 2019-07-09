@@ -1,6 +1,5 @@
 import time
 import serial
-import binascii
 
 class NumberIterator:
     def __init__(self, limit, startValue = 0):
