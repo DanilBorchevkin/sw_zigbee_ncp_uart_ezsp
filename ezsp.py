@@ -245,11 +245,12 @@ class ZigbeeNcp:
         self.sendAck(response)
         
         # Check ncp data response:
-        # 6.0.0 ncp example: { 0x01 0x42 0xa1 0xa8 0x52 0x28 0x15 0xd2 0xe7 0xae 0x7e }
-        if response[1:5] != b'\x42\xA1\xA8\x52':
-            return False
-        else:
+        # At this time we only checked first byte
+        # TODO fix this shit
+        if (response[0] == 0x01):
             return True
+        else:
+            return False
 
     def init(self):
         if self.ezspVersion == 6:
